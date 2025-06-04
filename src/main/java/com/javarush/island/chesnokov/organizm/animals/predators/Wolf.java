@@ -3,7 +3,6 @@ package com.javarush.island.chesnokov.organizm.animals.predators;
 import com.javarush.island.chesnokov.organizm.animals.Animal;
 import com.javarush.island.chesnokov.organizm.animals.herbivores.Rabbit;
 
-import java.util.List;
 import java.util.Map;
 
 public class Wolf extends Predator{

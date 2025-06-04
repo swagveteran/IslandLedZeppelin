@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Animal implements Reproducible {
-    private double weight;
+    private final double  weight;
     private final int maxCountOnCell;
     private final int speed;
     private final double foodAmount;

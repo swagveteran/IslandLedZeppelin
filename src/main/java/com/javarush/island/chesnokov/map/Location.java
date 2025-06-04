@@ -49,7 +49,7 @@ public class Location {
                 List<Animal> group = entry.getValue();
 
                 if (group.size() >= 2) {
-                    Animal parent = group.get(0);
+                    Animal parent = group.getFirst();
                     Animal offspring = parent.reproduce();
 
                     if (offspring != null && group.size() < parent.getMaxCountOnCell()) {
