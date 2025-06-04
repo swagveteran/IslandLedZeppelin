@@ -16,12 +16,15 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
     private Location currentLocation;
     private boolean processedInTick;
     private volatile boolean alive = true;
+    private int satiety;
+    private static final int MAX_SATIETY = 5;
 
     protected Animal(double weight, int maxCountOnCell, int speed, double foodAmount) {
         this.weight = weight;
         this.maxCountOnCell = maxCountOnCell;
         this.speed = speed;
         this.foodAmount = foodAmount;
+        this.satiety = MAX_SATIETY;
     }
 
     @Override
@@ -70,6 +73,18 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
 
     public void die() {
         this.alive = false;
+    }
+
+    public void eatSuccessful() {
+        satiety = MAX_SATIETY;
+    }
+
+    public void loseSatiety() {
+        satiety--;
+    }
+
+    public boolean isStarving() {
+        return satiety <= 0;
     }
 
     public void move(Island island) {

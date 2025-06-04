@@ -23,19 +23,21 @@ public abstract class Predator extends Animal {
         synchronized (animalsInCell) {
             Iterator<Animal> iterator = animalsInCell.iterator();
             while (iterator.hasNext()) {
-                Animal potentialPrey = iterator.next();
+                Animal prey = iterator.next();
+                if (prey == this || !prey.isAlive()) continue;
 
-                if (potentialPrey == this || !potentialPrey.isAlive()) continue;
-
-                Integer chance = getFoodPreferences().get(potentialPrey.getClass());
+                Integer chance = getFoodPreferences().get(prey.getClass());
                 if (chance != null && ThreadLocalRandom.current().nextInt(100) < chance) {
-                    System.out.println(this.getClass().getSimpleName() + " съел " + potentialPrey.getClass().getSimpleName()
-                            + " в локации [" + location.getRow() + "," + location.getCol() + "]");
-                    potentialPrey.die();
+                    prey.die();
                     iterator.remove();
-                    break;
+                    this.eatSuccessful(); // 🔥 поел — восстанавливаем насыщение
+                    System.out.println(this.getClass().getSimpleName() + " съел " + prey.getClass().getSimpleName()
+                            + " в локации [" + location.getRow() + "," + location.getCol() + "]");
+                    return;
                 }
             }
         }
+
+        this.loseSatiety();
     }
 }

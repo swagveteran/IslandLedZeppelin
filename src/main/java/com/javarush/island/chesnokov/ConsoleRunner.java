@@ -4,6 +4,7 @@ import com.javarush.island.chesnokov.map.Island;
 import com.javarush.island.chesnokov.map.Location;
 import com.javarush.island.chesnokov.organizm.animals.herbivores.Rabbit;
 import com.javarush.island.chesnokov.organizm.animals.predators.Wolf;
+import com.javarush.island.chesnokov.simulation.Simulation;
 
 public class ConsoleRunner {
     public static void main(String[] args){

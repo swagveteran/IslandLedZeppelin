@@ -1,6 +1,7 @@
 package com.javarush.island.chesnokov.map;
 
 import com.javarush.island.chesnokov.organizm.animals.Animal;
+import com.javarush.island.chesnokov.organizm.plants.Plant;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ public class Location {
     private final int row;
     private final int col;
     private final List<Animal> animals = Collections.synchronizedList(new ArrayList<>());
+    private final List<Plant> plants = Collections.synchronizedList(new ArrayList<>());
 
     public Location(int row, int col) {
         this.row = row;
@@ -24,6 +26,10 @@ public class Location {
 
     public List<Animal> getAnimals() {
         return animals;
+    }
+
+    public List<Plant> getPlants() {
+        return plants;
     }
 
     public int getRow() {

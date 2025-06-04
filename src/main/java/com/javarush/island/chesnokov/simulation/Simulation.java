@@ -1,8 +1,10 @@
-package com.javarush.island.chesnokov;
+package com.javarush.island.chesnokov.simulation;
 
 import com.javarush.island.chesnokov.map.Island;
 import com.javarush.island.chesnokov.map.Location;
 import com.javarush.island.chesnokov.organizm.animals.Animal;
+import com.javarush.island.chesnokov.organizm.plants.Plant;
+import com.javarush.island.chesnokov.simulation.config.SimulationConfig;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -26,6 +28,8 @@ public class Simulation {
         System.out.println("\n===== ТИК #" + tickCount + " =====");
 
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        growPlants();
 
         // 🐣 ФАЗА 1: Размножение (по локациям)
         for (int row = 0; row < island.getRows(); row++) {
@@ -53,6 +57,8 @@ public class Simulation {
 
         submitInBatches(animalsToProcess, executor, this::processMovement);
         waitForPhase(executor);
+
+        cleanupStarvedAnimals();
 
         printStatistics();
     }
@@ -85,6 +91,38 @@ public class Simulation {
         synchronized (animal) {
             if (animal.isAlive()) {
                 animal.move(island);
+            }
+        }
+    }
+
+    private void growPlants() {
+        for (int row = 0; row < island.getRows(); row++) {
+            for (int col = 0; col < island.getCols(); col++) {
+                Location location = island.getLocation(row, col);
+                List<Plant> plants = location.getPlants();
+
+                synchronized (plants) {
+                    int currentCount = plants.size();
+                    int spaceLeft = SimulationConfig.MAX_PLANTS_PER_CELL - currentCount;
+                    if (spaceLeft <= 0) continue;
+
+                    int toGrow = ThreadLocalRandom.current().nextInt(1, 4); // 1–3 растений
+                    toGrow = Math.min(toGrow, spaceLeft); // не превышаем лимит
+
+                    for (int i = 0; i < toGrow; i++) {
+                        plants.add(new Plant());
+                    }
+                }
+            }
+        }
+        System.out.println("🌿 Растения выросли");
+    }
+
+    private void cleanupStarvedAnimals() {
+        for (Animal animal : island.getAllAnimals()) {
+            if (animal.isAlive() && animal.isStarving()) {
+                animal.die();
+                System.out.println(animal.getClass().getSimpleName() + " умер от голода");
             }
         }
     }
