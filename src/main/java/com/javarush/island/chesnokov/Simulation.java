@@ -6,6 +6,7 @@ import com.javarush.island.chesnokov.organizm.animals.Animal;
 
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public class Simulation {
     private final Island island;
@@ -24,9 +25,7 @@ public class Simulation {
         tickCount++;
         System.out.println("\n===== ТИК #" + tickCount + " =====");
 
-        ExecutorService executor = Executors.newFixedThreadPool(
-                Runtime.getRuntime().availableProcessors()
-        );
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         // 🐣 ФАЗА 1: Размножение (по локациям)
         for (int row = 0; row < island.getRows(); row++) {
@@ -42,19 +41,32 @@ public class Simulation {
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         for (Animal animal : animalsToProcess) {
-            animal.resetTick(); // сброс флага для контроля
-            executor.submit(() -> processEating(animal));
+            animal.resetTick();
         }
+
+        submitInBatches(animalsToProcess, executor, this::processEating);
         waitForPhase(executor);
 
         // 🚶 ФАЗА 3: Перемещение
         animalsToProcess = island.getAllAnimals();
         executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        for (Animal animal : animalsToProcess) {
-            executor.submit(() -> processMovement(animal));
-        }
+        submitInBatches(animalsToProcess, executor, this::processMovement);
         waitForPhase(executor);
+    }
+
+    private void submitInBatches(List<Animal> animals,
+                                 ExecutorService executor, Consumer<Animal> action) {
+        for (int i = 0; i < animals.size(); i += 100) {
+            int to = Math.min(i + 100, animals.size());
+            List<Animal> batch = animals.subList(i, to);
+
+            executor.submit(() -> {
+                for (Animal animal : batch) {
+                    action.accept(animal);
+                }
+            });
+        }
     }
 
     private void processEating(Animal animal) {
