@@ -45,4 +45,25 @@ public class Island {
         }
         return all;
     }
+
+    public List<Location> getNeighborLocations(Location center) {
+        int row = center.getRow();
+        int col = center.getCol();
+        List<Location> neighbors = new ArrayList<>();
+
+        for (int dRow = -1; dRow <= 1; dRow++) {
+            for (int dCol = -1; dCol <= 1; dCol++) {
+                if (dRow == 0 && dCol == 0) continue;
+
+                int newRow = row + dRow;
+                int newCol = col + dCol;
+
+                if (newRow >= 0 && newRow < getRows() && newCol >= 0 && newCol < getCols()) {
+                    neighbors.add(getLocation(newRow, newCol));
+                }
+            }
+        }
+
+        return neighbors;
+    }
 }
