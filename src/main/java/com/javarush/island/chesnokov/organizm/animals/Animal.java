@@ -2,12 +2,13 @@ package com.javarush.island.chesnokov.organizm.animals;
 
 import com.javarush.island.chesnokov.map.Island;
 import com.javarush.island.chesnokov.map.Location;
+import com.javarush.island.chesnokov.organizm.Eatable;
+import com.javarush.island.chesnokov.organizm.Movable;
 import com.javarush.island.chesnokov.organizm.Reproducible;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public abstract class Animal implements Reproducible {
+public abstract class Animal implements Eatable, Movable, Reproducible {
     private final double  weight;
     private final int maxCountOnCell;
     private final int speed;
@@ -23,7 +24,8 @@ public abstract class Animal implements Reproducible {
         this.foodAmount = foodAmount;
     }
 
-    public void eat(List<Animal> animalsInCell) {
+    @Override
+    public void eat(Location location) {
     }
 
     public void setCurrentLocation(Location location) {

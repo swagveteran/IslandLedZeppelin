@@ -53,6 +53,8 @@ public class Simulation {
 
         submitInBatches(animalsToProcess, executor, this::processMovement);
         waitForPhase(executor);
+
+        printStatistics();
     }
 
     private void submitInBatches(List<Animal> animals,
@@ -74,7 +76,7 @@ public class Simulation {
             if (animal.isAlive() && !animal.isProcessedInTick()) {
                 animal.markProcessed();
                 Location location = animal.getCurrentLocation();
-                animal.eat(location.getAnimals());
+                animal.eat(animal.getCurrentLocation());
             }
         }
     }
@@ -97,5 +99,10 @@ public class Simulation {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
+    }
+
+    private void printStatistics() {
+        long aliveAnimals = island.getAllAnimals().stream().filter(Animal::isAlive).count();
+        System.out.println("Животных на острове: " + aliveAnimals);
     }
 }
