@@ -16,15 +16,15 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
     private Location currentLocation;
     private boolean processedInTick;
     private volatile boolean alive = true;
-    private int satiety;
-    private static final int MAX_SATIETY = 5;
+    private double satiety;
+
 
     protected Animal(double weight, int maxCountOnCell, int speed, double foodAmount) {
         this.weight = weight;
         this.maxCountOnCell = maxCountOnCell;
         this.speed = speed;
         this.foodAmount = foodAmount;
-        this.satiety = MAX_SATIETY;
+        this.satiety = foodAmount;
     }
 
     @Override
@@ -75,23 +75,26 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
         this.alive = false;
     }
 
-    public void eatSuccessful() {
-        satiety = MAX_SATIETY;
-    }
-
     public void loseSatiety() {
-        satiety--;
+        satiety = Math.max(0, satiety - 0.15);
     }
 
     public boolean isStarving() {
         return satiety <= 0;
     }
 
+    public boolean isFull() {
+        return satiety >= foodAmount;
+    }
+
+    public double getSatiety() {
+        return satiety;
+    }
+
     public void move(Island island) {
         if (!this.isAlive()) return;
         int maxDistance = ThreadLocalRandom.current().nextInt(1, speed + 1); // от 0 до speed
         if (maxDistance == 0) {
-            System.out.println(this.getClass().getSimpleName() + " остался на месте");
             return;
         }
 
@@ -116,15 +119,12 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
                 .count();
 
         if (sameKindCount >= this.getMaxCountOnCell()) {
-            System.out.println(this.getClass().getSimpleName() + " не может переместиться в [" + newRow + "," + newCol + "], клетка переполнена");
             return;
         }
 
         currentLocation.removeAnimal(this);
         newLocation.addAnimal(this);
         setCurrentLocation(newLocation);
-
-        System.out.println(this.getClass().getSimpleName() + " переместился в [" + newRow + "," + newCol + "]");
     }
 
     @Override
@@ -137,5 +137,9 @@ public abstract class Animal implements Eatable, Movable, Reproducible {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void increaseSatiety(double foodWeight) {
+        satiety = Math.min(foodAmount, satiety + foodWeight);
     }
 }

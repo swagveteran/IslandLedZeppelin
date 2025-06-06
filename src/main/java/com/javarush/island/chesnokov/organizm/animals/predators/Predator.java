@@ -1,5 +1,6 @@
 package com.javarush.island.chesnokov.organizm.animals.predators;
 
+import com.javarush.island.chesnokov.map.Island;
 import com.javarush.island.chesnokov.map.Location;
 import com.javarush.island.chesnokov.organizm.animals.Animal;
 
@@ -19,26 +20,55 @@ public abstract class Predator extends Animal {
     public void eat(Location location) {
         if (!this.isAlive()) return;
 
+        this.loseSatiety();
+        if (this.isFull()) return;
+
         List<Animal> animalsInCell = location.getAnimals();
         synchronized (animalsInCell) {
-            Iterator<Animal> iterator = animalsInCell.iterator();
-            while (iterator.hasNext()) {
-                Animal prey = iterator.next();
+            for (Iterator<Animal> it = animalsInCell.iterator(); it.hasNext();) {
+                Animal prey = it.next();
                 if (prey == this || !prey.isAlive()) continue;
 
                 Integer chance = getFoodPreferences().get(prey.getClass());
                 if (chance != null && ThreadLocalRandom.current().nextInt(100) < chance) {
                     prey.die();
-                    iterator.remove();
-                    this.eatSuccessful(); // 🔥 поел — восстанавливаем насыщение
-                    System.out.println(this.getClass().getSimpleName() + " съел " + prey.getClass().getSimpleName()
-                            + " в локации [" + location.getRow() + "," + location.getCol() + "]");
+                    it.remove();
+                    this.increaseSatiety(prey.getWeight());
                     return;
                 }
             }
         }
+    }
 
-        this.loseSatiety();
+    @Override
+    public void move(Island island) {
+        if (!this.isAlive()) return;
+
+        Location current = this.getCurrentLocation();
+        List<Location> neighbors = current.getIsland().getNeighborLocations(current);
+
+        Location target = neighbors.stream()
+                .filter(loc -> loc.getAnimals().stream().anyMatch(this::canEat))
+                .findFirst()
+                .orElseGet(() -> getRandomNeighbor(neighbors, current));
+
+        if (target != current) {
+            current.removeAnimal(this);
+            target.addAnimal(this);
+            this.setCurrentLocation(target);
+        }
+    }
+
+    private boolean canEat(Animal other) {
+        if (other == this || !other.isAlive()) return false;
+        Integer chance = getFoodPreferences().get(other.getClass());
+        return chance != null && chance > 0;
+    }
+
+    private Location getRandomNeighbor(List<Location> neighbors, Location fallback) {
+        return neighbors.isEmpty()
+                ? fallback
+                : neighbors.get(ThreadLocalRandom.current().nextInt(neighbors.size()));
     }
 
 }

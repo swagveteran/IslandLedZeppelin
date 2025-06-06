@@ -8,12 +8,14 @@ import java.util.*;
 public class Location {
     private final int row;
     private final int col;
+    private final Island island;
     private final List<Animal> animals = Collections.synchronizedList(new ArrayList<>());
     private final List<Plant> plants = Collections.synchronizedList(new ArrayList<>());
 
-    public Location(int row, int col) {
+    public Location(int row, int col, Island island) {
         this.row = row;
         this.col = col;
+        this.island = island;
     }
 
     public void addAnimal(Animal animal) {
@@ -40,6 +42,10 @@ public class Location {
         return col;
     }
 
+    public Island getIsland() {
+        return island;
+    }
+
     public void reproduceAnimals() {
         Map<Class<? extends Animal>, List<Animal>> groupedByType = new HashMap<>();
 
@@ -61,7 +67,6 @@ public class Location {
                     if (offspring != null && group.size() < parent.getMaxCountOnCell()) {
                         animals.add(offspring);
                         offspring.setCurrentLocation(this);
-                        System.out.println(parent.getClass().getSimpleName() + " размножился в локации [" + row + "," + col + "]");
                     }
                 }
             }

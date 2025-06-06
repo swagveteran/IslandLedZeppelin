@@ -5,6 +5,7 @@ import com.javarush.island.chesnokov.map.Location;
 import com.javarush.island.chesnokov.organizm.animals.Animal;
 import com.javarush.island.chesnokov.organizm.plants.Plant;
 import com.javarush.island.chesnokov.simulation.config.SimulationConfig;
+import com.javarush.island.chesnokov.statistic.ConsoleStatistics;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -25,7 +26,6 @@ public class Simulation {
 
     private void runTick() {
         tickCount++;
-        System.out.println("\n===== ТИК #" + tickCount + " =====");
 
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -60,7 +60,7 @@ public class Simulation {
 
         cleanupStarvedAnimals();
 
-        printStatistics();
+        ConsoleStatistics.print(island, tickCount);
     }
 
     private void submitInBatches(List<Animal> animals,
@@ -115,14 +115,12 @@ public class Simulation {
                 }
             }
         }
-        System.out.println("🌿 Растения выросли");
     }
 
     private void cleanupStarvedAnimals() {
         for (Animal animal : island.getAllAnimals()) {
             if (animal.isAlive() && animal.isStarving()) {
                 animal.die();
-                System.out.println(animal.getClass().getSimpleName() + " умер от голода");
             }
         }
     }
@@ -137,10 +135,5 @@ public class Simulation {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
-    }
-
-    private void printStatistics() {
-        long aliveAnimals = island.getAllAnimals().stream().filter(Animal::isAlive).count();
-        System.out.println("Животных на острове: " + aliveAnimals);
     }
 }

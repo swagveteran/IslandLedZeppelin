@@ -12,7 +12,7 @@ public class Island {
         locations = new Location[rows][cols];
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
-                locations[row][col] = new Location(row, col);
+                locations[row][col] = new Location(row, col, this);
             }
         }
     }
